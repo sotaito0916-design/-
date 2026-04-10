@@ -1,0 +1,766 @@
+
+<!DOCTYPE html><html><head><meta charset="UTF-8">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans,sans-serif);font-size:14px;background:transparent;color:var(--color-text-primary,#111)}
+:root{
+  --navy:#0f2d5a;--navy2:#1a4a8a;--gold:#d4920a;--red:#c52020;--grn:#1a6a1a;
+  --ts:var(--color-text-secondary,#666);
+  --bg1:var(--color-background-primary,#fff);--bg2:var(--color-background-secondary,#f5f5f5);
+  --bd:var(--color-border-tertiary,rgba(0,0,0,0.12));--bd2:var(--color-border-secondary,rgba(0,0,0,0.25));
+}
+#app{padding:10px;min-height:600px}
+.scr{display:none}.scr.on{display:block}
+.tabs{display:flex;gap:2px;margin-bottom:16px;border-bottom:2px solid var(--bd2)}
+.tab{padding:8px 16px;font-size:13px;cursor:pointer;border:none;background:none;color:var(--ts);border-bottom:2px solid transparent;margin-bottom:-2px}
+.tab.active{color:var(--navy);border-bottom-color:var(--navy);font-weight:500}
+.tab-content{display:none}.tab-content.active{display:block}
+.title{font-size:18px;font-weight:500;margin-bottom:4px}
+.sub{font-size:12px;color:var(--ts);margin-bottom:14px}
+.ab{padding:7px 16px;border:0.5px solid var(--bd2);border-radius:7px;font-size:13px;cursor:pointer;background:var(--bg1);color:var(--color-text-primary)}
+.ab:hover{background:var(--bg2)}
+.ab.pri{background:var(--navy);color:#fff;border-color:var(--navy)}.ab.pri:hover{background:var(--navy2)}
+.ab.meet{border:2px solid #1a6a8a;color:#1a6a8a;background:#edf6fb;font-weight:500}.ab.meet:hover{background:#1a6a8a;color:#fff}
+.ab.pow{border:2px solid #8a2020;color:#8a2020;background:#fbeaea;font-weight:500}.ab.pow:hover{background:#8a2020;color:#fff}
+.ab.grn{background:var(--grn);color:#fff;border-color:var(--grn)}.ab.grn:hover{background:#155515}
+.ab.danger{background:var(--red);color:#fff;border-color:var(--red)}
+.ab.sm{padding:4px 10px;font-size:12px}
+.ab.xs{padding:2px 8px;font-size:11px}
+.ab:disabled{opacity:.35;cursor:not-allowed}
+.hbtn{font-size:11px;padding:4px 10px;border:0.5px solid var(--bd);border-radius:6px;background:none;cursor:pointer;color:var(--ts)}
+.dgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:680px;margin-bottom:12px}
+.dcard{border:0.5px solid var(--bd);border-radius:10px;padding:14px;cursor:pointer;background:var(--bg1)}
+.dcard:hover{border-color:var(--navy2)}
+.ttag{font-size:11px;font-weight:500;padding:2px 8px;border-radius:10px;display:inline-block;margin-bottom:7px}
+.G{background:#fde8e5;color:#a01010}.T{background:#fff5cc;color:#806000}
+.dcard h3{font-size:13px;font-weight:500;margin-bottom:3px}
+.dcard p,.dcard .key{font-size:12px;color:var(--ts)}
+.note{font-size:11px;color:var(--ts);margin-top:8px}
+.url-row{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.url-input{flex:1;padding:8px 12px;border:0.5px solid var(--bd2);border-radius:7px;font-size:13px;background:var(--bg1);color:var(--color-text-primary);min-width:200px}
+.url-input:focus{outline:2px solid var(--navy2);border-color:transparent}
+.ai-result{background:var(--bg2);border-radius:8px;padding:12px;margin-top:12px;font-size:12px;line-height:1.7;max-height:240px;overflow-y:auto}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--bd);border-top-color:var(--navy);border-radius:50%;animation:spin .8s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.saved-deck-item{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border:0.5px solid var(--bd);border-radius:8px;background:var(--bg1);margin-bottom:6px}
+.saved-deck-item .deck-name{font-size:13px;font-weight:500}
+.saved-deck-item .deck-meta{font-size:11px;color:var(--ts)}
+.toss-wrap{max-width:440px;margin:0 auto;text-align:center;padding:20px 0}
+.toss-wrap h2{font-size:18px;font-weight:500;margin-bottom:8px}
+.toss-wrap>p{font-size:13px;color:var(--ts);margin-bottom:20px}
+.toss-btn{padding:14px 32px;font-size:15px;font-weight:500;border:0.5px solid var(--bd2);border-radius:10px;background:var(--navy);color:#fff;cursor:pointer}
+.toss-res{margin-top:20px;padding:18px;border-radius:10px;border:0.5px solid var(--bd2)}
+.toss-res .big{font-size:24px;font-weight:500;margin-bottom:6px}
+.toss-res .desc{font-size:13px;color:var(--ts);margin-bottom:14px}
+/* GAME HEADER */
+.ghd{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:0.5px solid var(--bd);padding-bottom:8px;margin-bottom:10px;gap:10px;flex-wrap:wrap}
+.score-left{display:flex;gap:12px;align-items:center;flex-shrink:0}
+.ss .tnm{font-size:11px;color:var(--ts)}.ss .pts{font-size:28px;font-weight:500}
+.ib{text-align:center;min-width:90px}.ib .itx{font-size:14px;font-weight:500}
+.idots{display:flex;gap:4px;justify-content:center;margin:3px 0}
+.id{width:9px;height:9px;border-radius:50%;border:1.5px solid #999;background:#ccc}
+.id.done{background:var(--navy)}.id.cur{background:var(--gold)}
+.phtag{font-size:11px;color:var(--ts)}
+.scoreboard{border:0.5px solid var(--bd2);border-radius:8px;overflow:hidden;font-size:11px;flex-shrink:0}
+.sb-table{border-collapse:collapse;min-width:220px}
+.sb-table th,.sb-table td{border:0.5px solid var(--bd);padding:4px 8px;text-align:center;white-space:nowrap}
+.sb-table th{background:var(--navy);color:#fff;font-weight:500;font-size:10px}
+.sb-table td.team-cell{text-align:left;font-weight:500;font-size:11px;background:var(--bg2);max-width:80px;overflow:hidden;text-overflow:ellipsis}
+.sb-table td.cur-inn{background:#fff8e0;font-weight:500}
+.sb-table td.total{font-weight:500;background:var(--bg2)}
+/* FIELD */
+.gcols{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.zbox{background:var(--bg2);border-radius:8px;padding:10px;border:0.5px solid var(--bd);margin-bottom:8px}
+.zlbl{font-size:10px;color:var(--ts);margin-bottom:6px;font-weight:500}
+.mycard{background:var(--bg1);border:0.5px solid var(--bd);border-radius:7px;padding:10px;min-height:64px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px}
+.mycard .abs-title{font-size:15px;font-weight:500;color:var(--ts)}
+.mycard .abs-sub{font-size:10px;color:var(--ts)}
+.pcard{background:var(--bg1);border:0.5px solid var(--bd);border-radius:7px;padding:8px}
+.pcard .pos{font-size:10px;color:var(--ts);margin-bottom:1px}
+.pcard .nm{font-size:13px;font-weight:500;margin-bottom:4px}
+.pcard .pstats{display:flex;gap:10px;margin-bottom:3px;flex-wrap:wrap}
+.stat .l{font-size:9px;color:var(--ts)}.stat .v{font-size:17px;font-weight:500}
+.dbonus{font-size:11px;padding:2px 7px;border-radius:10px;display:inline-block;margin-bottom:3px}
+.db-swing{background:#ffe0e0;color:#8a0000}.db-meet{background:#e0f0ff;color:#004080}
+.pcard .abil{font-size:10px;color:var(--ts);margin-top:3px;line-height:1.4}
+.empty-card{display:flex;align-items:center;justify-content:center;min-height:55px;color:var(--ts);font-size:12px}
+.sup-cards{display:flex;gap:5px;flex-wrap:wrap;min-height:26px}
+.scard{font-size:11px;border:0.5px solid var(--bd);border-radius:5px;padding:3px 8px;background:var(--bg1)}
+.scard.tac{background:#eeecff;border-color:#b0aae8}
+.scard.shoubusha{background:#e8e8e8;border-color:#999}
+.scard.hidden{background:var(--navy2);color:#fff;border:none;font-style:italic}
+.bfield{position:relative;width:82px;height:65px}
+.bsq{position:absolute;width:18px;height:18px;border:2px solid #999;background:#ddd;transform:rotate(45deg)}
+.bsq.on{background:var(--gold);border-color:#9a6800}
+.ocrow{display:flex;gap:5px;margin-top:4px}
+.oc{width:13px;height:13px;border-radius:50%;border:2px solid #999;background:#ddd}
+.oc.on{background:var(--red);border-color:#800}
+.tp-row{display:flex;gap:6px;margin-top:4px}
+.tp{width:26px;height:26px;border-radius:50%;border:2px solid var(--gold);background:var(--bg1);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:500;color:var(--gold)}
+.tp.used{background:var(--bg2);border-color:#ccc;color:#ccc}
+.bench-row{display:flex;gap:5px;flex-wrap:wrap;margin-top:4px}
+.bplayer{font-size:11px;padding:3px 8px;border:0.5px solid var(--bd);border-radius:5px;background:var(--bg1)}
+.bplayer.cur{border-color:var(--gold);background:#fff8e0;font-weight:500}
+.actbox{border:0.5px solid var(--bd2);border-radius:8px;padding:12px;margin-bottom:8px;background:var(--bg1)}
+.actbox h4{font-size:12px;font-weight:500;color:var(--ts);margin-bottom:8px}
+.arow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px}
+.arow:last-child{margin-bottom:0}
+.ni-label{font-size:12px;color:var(--ts)}
+.ni-val{font-size:22px;font-weight:500;min-width:36px;text-align:center}
+.ni-btn{width:28px;height:28px;border-radius:50%;border:0.5px solid var(--bd2);background:var(--bg1);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.ni-btn:hover{background:var(--bg2)}
+.info-box{background:var(--bg2);border-radius:6px;padding:8px;margin-bottom:8px;font-size:12px;line-height:1.8}
+.result-banner{border-radius:8px;padding:10px 14px;margin-bottom:8px;font-size:13px;font-weight:500}
+.result-banner.out{background:#fde8e8;color:#a01010;border:0.5px solid #f0b0b0}
+.result-banner.hit{background:#e8f5e8;color:#0a6010;border:0.5px solid #a0d0a0}
+.result-banner.hr{background:#fff3cd;color:#856404;border:0.5px solid #ffc107}
+.logbox{background:var(--bg2);border-radius:7px;padding:8px;max-height:110px;overflow-y:auto;margin-top:8px}
+.ll{font-size:12px;color:var(--ts);padding:2px 0;border-bottom:0.5px solid var(--bd);line-height:1.4}
+.ll:last-child{border-bottom:none}
+.ll.hi{color:var(--color-text-primary);font-weight:500}
+.ll.sc{color:var(--red);font-weight:500}
+.ll.cpu{color:var(--navy2)}
+.ll.fix{color:#856404}
+
+/* ====== 修正パネル ====== */
+/* 小さな「修正」リンク */
+.fix-trigger{font-size:10px;color:var(--ts);cursor:pointer;text-decoration:underline;text-decoration-style:dotted;opacity:.55;margin-left:6px;user-select:none}
+.fix-trigger:hover{opacity:1}
+/* 修正パネル本体 */
+.fix-panel{background:var(--bg1);border:0.5px solid var(--bd2);border-radius:8px;padding:12px;margin-top:8px;font-size:12px}
+.fix-panel h5{font-size:11px;font-weight:500;color:var(--ts);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.fix-panel h5::before{content:'⚙';font-size:12px}
+.fix-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:10px}
+.fix-section{background:var(--bg2);border-radius:6px;padding:8px}
+.fix-section .fx-lbl{font-size:10px;color:var(--ts);margin-bottom:6px;font-weight:500}
+.fx-row{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.fx-row label{font-size:11px;color:var(--ts);min-width:56px}
+.fx-num{display:flex;align-items:center;gap:4px}
+.fx-num button{width:22px;height:22px;border-radius:50%;border:0.5px solid var(--bd2);background:var(--bg1);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--color-text-primary)}
+.fx-num button:hover{background:var(--bg2)}
+.fx-num span{font-size:14px;font-weight:500;min-width:22px;text-align:center}
+.base-toggle{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-top:4px}
+.base-btn{padding:4px 6px;font-size:11px;border:0.5px solid var(--bd2);border-radius:5px;cursor:pointer;background:var(--bg1);color:var(--ts);text-align:center}
+.base-btn.on{background:var(--gold);color:#fff;border-color:#9a6800;font-weight:500}
+.fix-actions{display:flex;gap:8px;justify-content:flex-end}
+
+/* END */
+.endwrap{max-width:440px;margin:30px auto;text-align:center;padding:32px}
+.endwrap h2{font-size:26px;font-weight:500;margin-bottom:14px}
+.end-sb{margin:16px auto;border:0.5px solid var(--bd2);border-radius:8px;overflow:hidden;max-width:360px}
+.endwinner{font-size:18px;font-weight:500;margin:16px 0 24px}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
+</style></head><body>
+<div id="app">
+
+<!-- DECK SELECT -->
+<div id="s-sel" class="scr on">
+  <div class="title">⚾ ドリームオーダー 対戦アシスト</div>
+  <div class="sub">相手（CPU）が使うデッキを選んでください</div>
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('built-in')">公式デッキ</button>
+    <button class="tab" onclick="switchTab('import')">デッキログから読込 🤖</button>
+    <button class="tab" onclick="switchTab('saved')">保存済みデッキ</button>
+  </div>
+  <div id="tab-built-in" class="tab-content active">
+    <div class="dgrid">
+      <div class="dcard" onclick="selectBuiltIn('G1')"><span class="ttag G">読売ジャイアンツ</span><h3>ジャイアンツ①</h3><p>先発：山﨑伊織（DP7）</p><div class="key">王貞治・長嶋茂雄・坂本勇人</div></div>
+      <div class="dcard" onclick="selectBuiltIn('T1')"><span class="ttag T">阪神タイガース</span><h3>タイガース①</h3><p>先発：西勇輝（DP7）</p><div class="key">鳥谷敬・近本光司・大山悠輔</div></div>
+      <div class="dcard" onclick="selectBuiltIn('G2')"><span class="ttag G">読売ジャイアンツ</span><h3>ジャイアンツ②</h3><p>先発：斎藤雅樹（DP6）</p><div class="key">丸佳浩・阿部慎之助・岡本和真</div></div>
+      <div class="dcard" onclick="selectBuiltIn('T2')"><span class="ttag T">阪神タイガース</span><h3>タイガース②</h3><p>先発：村上頌樹（DP5）</p><div class="key">藤川球児・JFK継投・糸井嘉男</div></div>
+    </div>
+    <div class="note">※ あなたのデッキはPC上で管理しません。手元のカードで確認してください。</div>
+  </div>
+  <div id="tab-import" class="tab-content">
+    <div style="max-width:680px">
+      <h3 style="font-size:15px;font-weight:500;margin-bottom:8px">🤖 デッキログURLから読み込む</h3>
+      <p style="font-size:12px;color:var(--ts);margin-bottom:12px;line-height:1.7">ブシロード公式デッキログのURLを貼り付けるか、デッキ内容をテキストで貼り付けてください。</p>
+      <div class="url-row">
+        <input class="url-input" id="deck-url-input" placeholder="https://decklog.bushiroad.com/view/XXXXX またはデッキ内容テキスト" />
+        <button class="ab pri" onclick="importFromUrl()">🤖 AI解析</button>
+      </div>
+      <div id="ai-status" style="font-size:12px;color:var(--ts);margin-bottom:8px"></div>
+      <div id="ai-result" class="ai-result" style="display:none"></div>
+      <div id="import-actions" style="margin-top:10px;display:none">
+        <div class="arow">
+          <button class="ab pri" onclick="saveImportedDeck()">保存して使用</button>
+          <button class="ab" onclick="clearImport()">クリア</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="tab-saved" class="tab-content">
+    <div id="saved-deck-list"><p style="font-size:13px;color:var(--ts)">保存済みデッキはありません。</p></div>
+  </div>
+</div>
+
+<!-- TOSS -->
+<div id="s-toss" class="scr">
+  <div class="toss-wrap">
+    <h2>⚾ 先攻・後攻を決める</h2>
+    <p>コインを投げてランダムに先攻・後攻を決定します</p>
+    <button class="toss-btn" onclick="doToss()">🪙 コインを投げる</button>
+    <div id="toss-result" style="display:none" class="toss-res">
+      <div class="big" id="toss-big"></div>
+      <div class="desc" id="toss-desc"></div>
+      <button class="ab pri" onclick="startGame()">試合開始</button>
+    </div>
+  </div>
+</div>
+
+<!-- GAME -->
+<div id="s-game" class="scr">
+  <div class="ghd">
+    <div class="score-left">
+      <div class="ss"><div class="tnm">あなた</div><div class="pts" id="g-sp">0</div></div>
+      <div class="ib"><div class="itx" id="g-inn">1回表</div><div class="idots" id="g-dots"></div><div class="phtag" id="g-ph">スタンバイ</div></div>
+      <div class="ss"><div class="tnm" id="g-cnm">CPU</div><div class="pts" id="g-sc">0</div></div>
+    </div>
+    <div class="scoreboard"><table class="sb-table" id="sb-table"></table></div>
+    <button class="hbtn" onclick="show('s-sel');renderSavedDecks()">最初から</button>
+  </div>
+
+  <!-- フィールド -->
+  <div class="gcols">
+    <div>
+      <div class="zbox"><div class="zlbl" id="p-zone-lbl">あなたの投手</div><div id="p-main"></div></div>
+      <div class="zbox"><div class="zlbl">サポートエリア（あなた）</div><div class="sup-cards" id="p-sup"><span style="font-size:11px;color:var(--ts)">手元でカードをセット（1〜2枚）</span></div></div>
+      <div class="zbox"><div class="zlbl">タイムポイント（あなた）</div><div class="tp-row" id="p-tp"></div><div style="margin-top:6px"><button class="ab sm" onclick="usePTP()">1つ使用</button></div></div>
+    </div>
+    <div>
+      <div class="zbox"><div class="zlbl" id="c-zone-lbl">CPU 投手</div><div id="c-main" class="pcard"><div class="empty-card">—</div></div></div>
+      <div class="zbox"><div class="zlbl">サポートエリア（CPU）</div><div class="sup-cards" id="c-sup"><span style="font-size:11px;color:var(--ts)">なし</span></div></div>
+      <div class="zbox"><div class="zlbl">タイムポイント（CPU）</div><div class="tp-row" id="c-tp"></div></div>
+    </div>
+  </div>
+
+  <!-- 塁・アウト・打順 + 修正トリガー -->
+  <div class="zbox">
+    <div style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap">
+      <div>
+        <div class="zlbl">
+          塁上
+          <span class="fix-trigger" onclick="toggleFix()" title="得点・アウト・ランナーを修正">修正</span>
+        </div>
+        <div class="bfield" id="g-bases"></div>
+        <div style="font-size:10px;color:var(--ts);margin-top:2px" id="g-btxt"></div>
+      </div>
+      <div><div class="zlbl">アウト</div><div class="ocrow" id="g-outs"></div></div>
+      <div style="flex:1"><div class="zlbl" id="bench-lbl">打順</div><div class="bench-row" id="g-bench"></div></div>
+    </div>
+    <!-- 修正パネル（初期非表示）-->
+    <div id="fix-panel" class="fix-panel" style="display:none">
+      <h5>状況の修正</h5>
+      <div class="fix-grid">
+        <!-- 得点 -->
+        <div class="fix-section">
+          <div class="fx-lbl">得点</div>
+          <div class="fx-row">
+            <label>あなた</label>
+            <div class="fx-num">
+              <button onclick="fixScore('p',-1)">－</button>
+              <span id="fx-sp">0</span>
+              <button onclick="fixScore('p',1)">＋</button>
+            </div>
+          </div>
+          <div class="fx-row">
+            <label>CPU</label>
+            <div class="fx-num">
+              <button onclick="fixScore('c',-1)">－</button>
+              <span id="fx-sc">0</span>
+              <button onclick="fixScore('c',1)">＋</button>
+            </div>
+          </div>
+        </div>
+        <!-- アウト -->
+        <div class="fix-section">
+          <div class="fx-lbl">アウトカウント</div>
+          <div class="fx-num" style="margin-top:4px">
+            <button onclick="fixOut(-1)">－</button>
+            <span id="fx-out">0</span>
+            <button onclick="fixOut(1)">＋</button>
+          </div>
+          <div style="font-size:10px;color:var(--ts);margin-top:6px">※ 3にするとチェンジ処理</div>
+        </div>
+        <!-- ランナー -->
+        <div class="fix-section">
+          <div class="fx-lbl">ランナー</div>
+          <div class="base-toggle" id="fix-bases">
+            <button class="base-btn" onclick="fixBase(0)" id="fb-0">1塁</button>
+            <button class="base-btn" onclick="fixBase(1)" id="fb-1">2塁</button>
+            <button class="base-btn" onclick="fixBase(2)" id="fb-2">3塁</button>
+          </div>
+          <div style="font-size:10px;color:var(--ts);margin-top:6px">タップで ON/OFF</div>
+        </div>
+      </div>
+      <div class="fix-actions">
+        <button class="ab xs" onclick="toggleFix()">閉じる</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="actbox" id="g-act"></div>
+  <div class="logbox" id="g-log"></div>
+</div>
+
+<!-- END -->
+<div id="s-end" class="scr">
+  <div class="endwrap">
+    <h2>⚾ 試合終了</h2>
+    <div class="end-sb"><table class="sb-table" id="end-sb-table"></table></div>
+    <div class="endwinner" id="e-win"></div>
+    <button class="ab pri" onclick="show('s-sel');renderSavedDecks()">もう一度</button>
+  </div>
+</div>
+
+<script>
+// ====== TAB ======
+function switchTab(name){
+  const names=['built-in','import','saved'];
+  document.querySelectorAll('.tab').forEach((t,i)=>{t.classList.toggle('active',names[i]===name)});
+  names.forEach(n=>{document.getElementById('tab-'+n).classList.toggle('active',n===name)});
+  if(name==='saved')renderSavedDecks();
+}
+
+// ====== CARD DB ======
+const C={
+  yamazaki:{nm:'山﨑 伊織',pos:'投手',ap:5,dp:7,supVal:3,supType:'強振',senpatsu:7,type:'P',diceBonus:{},abil:'守:手札①捨が能力なし選手→DP+1・1ドロー'},
+  yamaguchi:{nm:'山口 鉄也',pos:'投手',ap:4,dp:4,supVal:3,supType:'ミート',nakatsugi:4,type:'P',diceBonus:{},abil:'守:サポエリアに山口か能力なし選手→DP+2'},
+  saito:{nm:'斎藤 雅樹',pos:'投手',ap:4,dp:6,supVal:3,supType:'強振',senpatsu:6,type:'P',diceBonus:{},abil:'守:メイン起動①DP+2'},
+  uehara:{nm:'上原 浩治',pos:'投手',ap:4,dp:5,supVal:3,supType:'ミート',nakatsugi:4,type:'P',diceBonus:{},abil:'守:勝負中①DP+1'},
+  kikuchi:{nm:'菊地 大稀',pos:'投手',ap:4,dp:3,supVal:3,supType:'強振',nakatsugi:3,type:'P',diceBonus:{},abil:''},
+  nakagawa:{nm:'中川 皓太',pos:'投手',ap:4,dp:3,supVal:3,supType:'ミート',nakatsugi:3,type:'P',diceBonus:{},abil:''},
+  nakayama:{nm:'中山 礼都',pos:'投手',ap:4,dp:3,supVal:3,supType:'強振',nakatsugi:3,type:'P',diceBonus:{},abil:''},
+  nagashima:{nm:'長嶋 茂雄',pos:'三塁手',ap:6,dp:5,supVal:4,supType:'強振',type:'P',diceBonus:{swing:1},abil:'攻:①→1ドロー or AP+1・ダイス+1'},
+  oh:{nm:'王 貞治',pos:'一塁手',ap:6,dp:4,supVal:4,supType:'強振',type:'P',diceBonus:{swing:2},abil:'攻:フルスイングコンボAP+2・ダイス+2'},
+  sakamoto_t:{nm:'坂本 勇人',pos:'三塁手',ap:6,dp:5,supVal:4,supType:'強振',type:'P',diceBonus:{},abil:'攻:サポエリアのフルスイングを手札へ'},
+  sakamoto_c:{nm:'坂本 勇人(CBP)',pos:'遊撃手',ap:5,dp:5,supVal:3,supType:'強振',type:'P',diceBonus:{},abil:'攻:サポエリアのフルスイングを手札へ'},
+  takahashi:{nm:'高橋 由伸',pos:'外野手',ap:6,dp:4,supVal:3,supType:'強振',type:'P',diceBonus:{swing:1},abil:'攻:強振①AP+1'},
+  maru:{nm:'丸 佳浩',pos:'外野手',ap:5,dp:4,supVal:4,supType:'ミート',type:'P',diceBonus:{meet:1},abil:'攻:ミート①AP+1・1ドロー'},
+  abe:{nm:'阿部 慎之助',pos:'捕手',ap:6,dp:5,supVal:4,supType:'強振',type:'P',diceBonus:{swing:1},abil:'攻:打撃判定後①振り直し可'},
+  okamoto:{nm:'岡本 和真',pos:'三塁手',ap:6,dp:4,supVal:4,supType:'強振',type:'P',diceBonus:{swing:1},abil:'攻:強振①AP+1'},
+  oshiro:{nm:'大城 卓三',pos:'捕手',ap:5,dp:4,supVal:3,supType:'強振',type:'P',diceBonus:{},abil:''},
+  asano_cbp:{nm:'浅野 翔吾',pos:'外野手',ap:5,dp:3,supVal:3,supType:'強振',type:'P',diceBonus:{},abil:''},
+  asano_tbp:{nm:'浅野 翔吾(TBP)',pos:'外野手',ap:5,dp:4,supVal:3,supType:'強振',type:'P',diceBonus:{},abil:''},
+  hageo_tbp:{nm:'萩尾 匡也',pos:'外野手',ap:5,dp:3,supVal:3,supType:'強振',type:'P',diceBonus:{},abil:''},
+  hageo_cbp:{nm:'萩尾 匡也(CBP)',pos:'外野手',ap:5,dp:3,supVal:3,supType:'強振',type:'P',diceBonus:{},abil:''},
+  yoshikawa:{nm:'吉川 尚輝',pos:'二塁手',ap:5,dp:4,supVal:3,supType:'ミート',type:'P',diceBonus:{meet:1},abil:'攻:ミート①AP+1'},
+  saso:{nm:'佐々木 俊輔',pos:'外野手',ap:5,dp:3,supVal:3,supType:'強振',type:'P',diceBonus:{},abil:''},
+  kadowaki:{nm:'門脇 誠',pos:'遊撃手',ap:5,dp:4,supVal:3,supType:'ミート',type:'P',diceBonus:{meet:1},abil:'攻:ミート①AP+1'},
+  nagano:{nm:'長野 久義',pos:'外野手',ap:5,dp:4,supVal:3,supType:'強振',type:'P',diceBonus:{},abil:''},
+  fusyoku:{nm:'不屈',pos:null,ap:0,dp:0,supVal:4,supType:'強振',type:'T',tacticRole:'support_def',diceBonus:{},abil:'【守備専用】強振時DP+4'},
+  shoubusha_g:{nm:'勝負師',pos:null,ap:0,dp:0,supVal:0,supType:'両方',type:'T',tacticRole:'shoubusha',diceBonus:{},abil:'【攻/守】相手の覚醒を無効化'},
+  fullswing:{nm:'フルスイング',pos:null,ap:0,dp:0,supVal:3,supType:'強振',type:'T',tacticRole:'support_atk',diceBonus:{},abil:'【攻撃専用】強振時AP+3'},
+  nishi:{nm:'西 勇輝',pos:'投手',ap:5,dp:7,supVal:3,supType:'ミート',senpatsu:7,type:'P',diceBonus:{},abil:'守:覚醒→DP+1・レストのミートバッティング手札へ'},
+  ishii:{nm:'石井 大智',pos:'投手',ap:4,dp:4,supVal:3,supType:'強振',nakatsugi:4,type:'P',diceBonus:{},abil:''},
+  kirishiki:{nm:'桐敷 拓馬',pos:'投手',ap:4,dp:3,supVal:3,supType:'ミート',nakatsugi:3,type:'P',diceBonus:{},abil:''},
+  iwahari:{nm:'岩貞 祐太',pos:'投手',ap:4,dp:3,supVal:3,supType:'強振',nakatsugi:3,type:'P',diceBonus:{},abil:''},
+  yuasa:{nm:'湯浅 京己',pos:'投手',ap:4,dp:4,supVal:3,supType:'強振',nakatsugi:4,type:'P',diceBonus:{},abil:''},
+  gera:{nm:'J.ゲラ',pos:'投手',ap:4,dp:5,supVal:3,supType:'強振',nakatsugi:5,type:'P',diceBonus:{},abil:''},
+  murakamis:{nm:'村上 頌樹',pos:'投手',ap:4,dp:5,supVal:3,supType:'ミート',senpatsu:5,type:'P',diceBonus:{},abil:''},
+  fujikawa:{nm:'藤川 球児',pos:'投手',ap:4,dp:5,supVal:4,supType:'強振',nakatsugi:5,type:'P',diceBonus:{},abil:''},
+  kubota:{nm:'久保田 智之',pos:'投手',ap:4,dp:4,supVal:3,supType:'ミート',nakatsugi:4,type:'P',diceBonus:{},abil:''},
+  jwilliams:{nm:'J.ウィリアムス',pos:'投手',ap:4,dp:4,supVal:3,supType:'強振',nakatsugi:4,type:'P',diceBonus:{},abil:''},
+  toritani:{nm:'鳥谷 敬',pos:'遊撃手',ap:5,dp:5,supVal:4,supType:'ミート',type:'P',diceBonus:{meet:3},abil:'攻:ミートで二塁打→三塁打/ミートバッティングコンボAP+2・ダイス+3'},
+  kondou:{nm:'近本 光司',pos:'外野手',ap:5,dp:4,supVal:3,supType:'ミート',type:'P',diceBonus:{meet:1},abil:'攻:ミート①AP+1'},
+  kondou660:{nm:'近本 光司(CBP)',pos:'外野手',ap:5,dp:4,supVal:3,supType:'ミート',type:'P',diceBonus:{meet:1},abil:'攻:ミート①AP+1'},
+  nakano_t:{nm:'中野 拓夢',pos:'二塁手',ap:5,dp:4,supVal:3,supType:'ミート',type:'P',diceBonus:{meet:1},abil:'攻:ミート①AP+1'},
+  nakano_c:{nm:'中野 拓夢(CBP)',pos:'二塁手',ap:5,dp:4,supVal:3,supType:'ミート',type:'P',diceBonus:{meet:1},abil:'攻:ミート①AP+1'},
+  maekawa:{nm:'前川 右京',pos:'外野手',ap:5,dp:3,supVal:3,supType:'強振',type:'P',diceBonus:{swing:1},abil:'攻:強振①AP+1'},
+  oyama_t:{nm:'大山 悠輔',pos:'一塁手',ap:6,dp:4,supVal:4,supType:'強振',type:'P',diceBonus:{swing:1},abil:'攻:強振①AP+1'},
+  oyama_c:{nm:'大山 悠輔(CBP)',pos:'一塁手',ap:6,dp:4,supVal:4,supType:'強振',type:'P',diceBonus:{swing:1},abil:'攻:強振①AP+1'},
+  morishita:{nm:'森下 翔太',pos:'外野手',ap:5,dp:4,supVal:3,supType:'強振',type:'P',diceBonus:{swing:1},abil:'攻:強振①AP+1'},
+  morishita_c:{nm:'森下 翔太(CBP)',pos:'外野手',ap:5,dp:4,supVal:3,supType:'強振',type:'P',diceBonus:{swing:1},abil:'攻:強振①AP+1'},
+  inoue:{nm:'井上 広大',pos:'外野手',ap:5,dp:3,supVal:3,supType:'強振',type:'P',diceBonus:{swing:1},abil:'攻:強振①AP+1'},
+  sato:{nm:'佐藤 輝明',pos:'三塁手',ap:6,dp:4,supVal:4,supType:'強振',type:'P',diceBonus:{swing:1},abil:'攻:強振①AP+1'},
+  nagasaka:{nm:'長坂 拳弥',pos:'捕手',ap:4,dp:4,supVal:3,supType:'強振',type:'P',diceBonus:{},abil:''},
+  itoi:{nm:'糸井 嘉男',pos:'外野手',ap:6,dp:4,supVal:4,supType:'強振',type:'P',diceBonus:{swing:2},abil:'攻:強振②ダイス+2'},
+  obata:{nm:'小幡 竜平',pos:'遊撃手',ap:5,dp:3,supVal:3,supType:'ミート',type:'P',diceBonus:{meet:1},abil:'攻:ミート①AP+1'},
+  ueda:{nm:'植田 海',pos:'外野手',ap:4,dp:3,supVal:3,supType:'ミート',type:'P',diceBonus:{},abil:''},
+  watanabe:{nm:'渡邉 諒',pos:'二塁手',ap:5,dp:3,supVal:3,supType:'強振',type:'P',diceBonus:{},abil:''},
+  itoharas:{nm:'糸原 健斗',pos:'二塁手',ap:4,dp:4,supVal:3,supType:'ミート',type:'P',diceBonus:{meet:1},abil:'攻:ミート①AP+1'},
+  shoubusha_t:{nm:'勝負師',pos:null,ap:0,dp:0,supVal:0,supType:'両方',type:'T',tacticRole:'shoubusha',diceBonus:{},abil:'【攻/守】相手の覚醒を無効化'},
+  meetbat:{nm:'ミートバッティング',pos:null,ap:0,dp:0,supVal:4,supType:'ミート',type:'T',tacticRole:'support_atk',diceBonus:{},abil:'【攻撃専用】ミート時AP+4'},
+  endorun_t:{nm:'エンドラン',pos:null,ap:0,dp:0,supVal:3,supType:'ミート',type:'T',tacticRole:'support_atk',diceBonus:{},abil:'【攻撃専用】ミート時AP+3'},
+  konshini_t:{nm:'渾身の一球',pos:null,ap:0,dp:0,supVal:3,supType:'両方',type:'T',tacticRole:'support_def',diceBonus:{},abil:'【守備専用】DP+3'},
+  fusyoku_t:{nm:'不屈',pos:null,ap:0,dp:0,supVal:4,supType:'強振',type:'T',tacticRole:'support_def',diceBonus:{},abil:'【守備専用】強振時DP+4'},
+};
+function r(n,c){return Array(n).fill(c)}
+function shuf(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=~~(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b}
+function show(id){document.querySelectorAll('.scr').forEach(e=>e.classList.remove('on'));document.getElementById(id).classList.add('on')}
+
+const BD={
+  G1:{name:'ジャイアンツ①',shortName:'G①',
+    starter:C.yamazaki,pitchers:[C.yamaguchi,C.kikuchi,C.nakagawa,C.nakayama],
+    order:[C.nagashima,C.sakamoto_t,C.oh,C.asano_cbp,C.hageo_tbp,C.oshiro,C.yoshikawa,C.saso,C.kadowaki],
+    main:[...r(3,C.yamaguchi),...r(3,C.yamazaki),...r(2,C.oshiro),...r(3,C.oh),...r(2,C.yoshikawa),...r(3,C.nagashima),...r(3,C.sakamoto_t),...r(3,C.sakamoto_c),...r(1,C.hageo_cbp),...r(3,C.takahashi),...r(2,C.hageo_tbp),...r(2,C.saso),...r(2,C.asano_cbp),...r(2,C.fusyoku),...r(3,C.shoubusha_g),...r(3,C.fullswing)]},
+  T1:{name:'タイガース①',shortName:'T①',
+    starter:C.nishi,pitchers:[C.ishii,C.kirishiki,C.iwahari,C.yuasa,C.gera],
+    order:[C.kondou,C.nakano_t,C.maekawa,C.toritani,C.oyama_t,C.morishita,C.inoue,C.sato,C.nagasaka],
+    main:[...r(3,C.nishi),...r(3,C.ishii),...r(3,C.gera),...r(3,C.iwahari),...r(2,C.oyama_t),...r(2,C.nakano_t),...r(2,C.sato),...r(3,C.toritani),...r(2,C.morishita),...r(3,C.kondou),...r(3,C.inoue),...r(2,C.maekawa),...r(1,C.endorun_t),...r(3,C.shoubusha_t),...r(3,C.meetbat),...r(2,C.konshini_t)]},
+  G2:{name:'ジャイアンツ②',shortName:'G②',
+    starter:C.saito,pitchers:[C.uehara,C.kikuchi,C.nakagawa,C.nakayama],
+    order:[C.takahashi,C.maru,C.okamoto,C.abe,C.asano_tbp,C.yoshikawa,C.hageo_tbp,C.sakamoto_c,C.kadowaki],
+    main:[...r(3,C.saito),...r(3,C.uehara),...r(3,C.abe),...r(3,C.okamoto),...r(3,C.oh),...r(2,C.yoshikawa),...r(3,C.nagashima),...r(3,C.kadowaki),...r(3,C.takahashi),...r(3,C.maru),...r(2,C.hageo_tbp),...r(2,C.asano_tbp),...r(1,C.fusyoku),...r(3,C.fusyoku),...r(3,C.shoubusha_g)]},
+  T2:{name:'タイガース②',shortName:'T②',
+    starter:C.murakamis,pitchers:[C.fujikawa,C.kubota,C.jwilliams,C.watanabe,C.itoharas],
+    order:[C.itoi,C.oyama_c,C.morishita_c,C.kondou660,C.nakano_t,C.sato,C.obata,C.ueda,C.nagasaka],
+    main:[...r(3,C.murakamis),...r(3,C.fujikawa),...r(3,C.kubota),...r(3,C.jwilliams),...r(3,C.oyama_c),...r(3,C.nakano_t),...r(3,C.nakano_c),...r(2,C.sato),...r(3,C.itoi),...r(3,C.morishita_c),...r(3,C.kondou660),...r(3,C.fusyoku_t),...r(3,C.shoubusha_t),...r(2,C.konshini_t)]},
+};
+const HIT={2:'アウト',3:'アウト',4:'アウト',5:'単打',6:'単打',7:'単打',8:'二塁打',9:'二塁打',10:'本塁打',11:'本塁打',12:'本塁打'};
+
+let savedDecks=[];
+let importedDeckData=null;
+let selectedCpuDeck=null;
+let _playerFirst=true;
+let G={};
+
+// ====== SAVED DECKS ======
+function renderSavedDecks(){
+  const el=document.getElementById('saved-deck-list');
+  if(!savedDecks.length){el.innerHTML='<p style="font-size:13px;color:var(--ts)">保存済みデッキはありません。</p>';return}
+  el.innerHTML=savedDecks.map((d,i)=>`<div class="saved-deck-item"><div><div class="deck-name">${d.name}</div><div class="deck-meta">先発: ${d.starter?.nm||'?'} | メイン: ${d.main?.length||0}枚</div></div><div style="display:flex;gap:6px"><button class="ab sm pri" onclick="selectSaved(${i})">使用</button><button class="ab sm danger" onclick="deleteSaved(${i})">削除</button></div></div>`).join('');
+}
+function deleteSaved(i){savedDecks.splice(i,1);renderSavedDecks()}
+
+// ====== AI IMPORT ======
+async function importFromUrl(){
+  const input=document.getElementById('deck-url-input').value.trim();
+  if(!input){alert('URLまたはデッキ内容を入力してください');return}
+  const statusEl=document.getElementById('ai-status');
+  const resultEl=document.getElementById('ai-result');
+  const actEl=document.getElementById('import-actions');
+  statusEl.innerHTML='<span class="spinner"></span>AIがデッキを解析中...';
+  resultEl.style.display='none';actEl.style.display='none';importedDeckData=null;
+  const cardKeys=Object.entries(C).map(([k,v])=>`"${v.nm}" → "${k}" (${v.pos||'戦術'},AP:${v.ap},DP:${v.dp})`).join('\n');
+  const prompt=`ドリームオーダーのデッキデータを解析してください。\n\n【入力】\n${input}\n\n【カードDB】\n${cardKeys}\n\n以下のJSONのみ回答（説明文不要）:\n{"deckName":"名前","shortName":"短縮名4字以内","starter":"カードキー","pitchers":["キー"],"order":["1番","2番","3番","4番","5番","6番","7番","8番","9番"],"main":[{"key":"キー","count":枚数}],"notes":"特記"}`;
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})});
+    const data=await resp.json();
+    const text=data.content.map(i=>i.text||'').join('');
+    const match=text.match(/\{[\s\S]*\}/);
+    if(!match)throw new Error('JSON取得失敗');
+    const parsed=JSON.parse(match[0]);
+    const deck=buildDeckFromAI(parsed);
+    importedDeckData=deck;
+    resultEl.style.display='block';
+    resultEl.innerHTML=`<strong>${deck.name}</strong><br>先発: ${deck.starter?.nm||'?'}<br>打順: ${deck.order.slice(0,5).map((p,i)=>`${i+1}.${p?.nm||'?'}`).join(' / ')}...<br>メイン: ${deck.main.length}枚${parsed.notes?`<br>📝 ${parsed.notes}`:''}`;
+    actEl.style.display='block';statusEl.textContent='✅ 解析完了';
+  }catch(e){statusEl.textContent=`❌ ${e.message}`;resultEl.style.display='block';resultEl.textContent='解析に失敗しました。デッキ内容をテキストで貼り付けてみてください。'}
+}
+function buildDeckFromAI(p){
+  function g(k){return C[k]||Object.values(C).find(c=>c.nm===k)||null}
+  const starter=g(p.starter)||C.yamazaki;
+  const order=(p.order||[]).map(k=>g(k)).filter(Boolean);
+  while(order.length<9){const x=Object.values(C).find(c=>c.pos&&c.pos!=='投手'&&!order.includes(c));if(x)order.push(x);else break}
+  const main=[];
+  (p.main||[]).forEach(({key,count})=>{const c=g(key);if(c)for(let i=0;i<Math.min(count,3);i++)main.push({...c})});
+  while(main.length<30)main.push({...C.shoubusha_g});
+  if(main.length>30)main.length=30;
+  return{name:p.deckName||'カスタム',shortName:p.shortName||'カスタム',isCustom:true,starter,pitchers:[],order,main,notes:p.notes||''};
+}
+function saveImportedDeck(){if(!importedDeckData)return;savedDecks.push(importedDeckData);clearImport();switchTab('saved');alert(`「${importedDeckData.name}」を保存しました！`)}
+function clearImport(){document.getElementById('deck-url-input').value='';document.getElementById('ai-status').textContent='';document.getElementById('ai-result').style.display='none';document.getElementById('import-actions').style.display='none';importedDeckData=null}
+
+// ====== DECK SELECT ======
+function selectBuiltIn(id){selectedCpuDeck=BD[id];show('s-toss')}
+function selectSaved(i){selectedCpuDeck=savedDecks[i];show('s-toss')}
+
+// ====== TOSS ======
+function doToss(){
+  _playerFirst=Math.random()<0.5;
+  document.getElementById('toss-big').textContent=_playerFirst?'🎉 あなたが先攻！':'⚡ CPUが先攻！';
+  document.getElementById('toss-desc').textContent=_playerFirst?'あなたが1回表の攻撃から始めます。':'CPUが1回表の攻撃から始めます。';
+  document.getElementById('toss-result').style.display='block';
+}
+
+// ====== GAME INIT ======
+function startGame(){
+  const cpuD=selectedCpuDeck;
+  G={cpuD,playerAtksTop:_playerFirst,inning:1,tb:'top',outs:0,bases:[null,null,null],
+    scores:{p:0,c:0},scoreByInning:{p:{},c:{}},curInnScore:{p:0,c:0},
+    cDeck:shuf([...cpuD.main]),cHand:[],cDisc:[],
+    cPitcher:cpuD.starter,cBatIdx:0,pTp:3,cTp:3,
+    cDefSup:[],cAtkSup:[],userAP:5,userDP:7,pBatIdx:0,
+    phase:'standby',swingType:null,gameOver:false,logs:[],resultBanner:null};
+  const sp=cpuD.starter.senpatsu||3;
+  for(let i=0;i<sp;i++)cpuDraw();
+  document.getElementById('g-cnm').textContent=cpuD.name;
+  show('s-game');
+  log(`試合開始！ CPU: ${cpuD.name}`,'hi');
+  log(`CPU先発：${cpuD.starter.nm}（DP:${cpuD.starter.dp}）`,'cpu');
+  log(G.playerAtksTop?'▶ あなた先攻':'▶ CPU先攻','hi');
+  render();
+}
+
+function isPA(){return (G.tb==='top')===G.playerAtksTop}
+function cpuDraw(){
+  if(!G.cDeck.length){G.cDisc.forEach(c=>G.cDeck.push(c));G.cDisc=[];shuf(G.cDeck)}
+  if(G.cDeck.length)G.cHand.push(G.cDeck.shift());
+}
+function log(msg,cls=''){
+  G.logs.unshift({msg,cls});if(G.logs.length>50)G.logs.pop();
+  const lw=document.getElementById('g-log');
+  if(lw)lw.innerHTML=G.logs.slice(0,18).map(l=>`<div class="ll ${l.cls}">${l.msg}</div>`).join('');
+}
+
+// ====== 修正パネル ======
+function toggleFix(){
+  const panel=document.getElementById('fix-panel');
+  const open=panel.style.display==='none';
+  panel.style.display=open?'block':'none';
+  if(open) syncFixPanel();
+}
+function syncFixPanel(){
+  document.getElementById('fx-sp').textContent=G.scores.p;
+  document.getElementById('fx-sc').textContent=G.scores.c;
+  document.getElementById('fx-out').textContent=G.outs;
+  [0,1,2].forEach(i=>{
+    document.getElementById('fb-'+i).classList.toggle('on',!!G.bases[i]);
+  });
+}
+function fixScore(who,d){
+  G.scores[who]=Math.max(0,G.scores[who]+d);
+  document.getElementById('fx-sp').textContent=G.scores.p;
+  document.getElementById('fx-sc').textContent=G.scores.c;
+  document.getElementById('g-sp').textContent=G.scores.p;
+  document.getElementById('g-sc').textContent=G.scores.c;
+  renderScoreboard('sb-table');
+  log(`⚙ 得点修正：あなた ${G.scores.p} - CPU ${G.scores.c}`,'fix');
+}
+function fixOut(d){
+  const newOut=Math.max(0,Math.min(3,G.outs+d));
+  G.outs=newOut;
+  document.getElementById('fx-out').textContent=G.outs;
+  if(G.outs>=3){
+    // チェンジ処理
+    document.getElementById('fix-panel').style.display='none';
+    log('⚙ アウト修正によりチェンジ処理','fix');
+    doChange();
+  } else {
+    const od=document.getElementById('g-outs');od.innerHTML='';
+    for(let i=0;i<3;i++){const d=document.createElement('div');d.className='oc'+(i<G.outs?' on':'');od.appendChild(d)}
+    log(`⚙ アウトカウント修正：${G.outs}アウト`,'fix');
+  }
+}
+function fixBase(idx){
+  G.bases[idx]=G.bases[idx]?null:{label:'修正'};
+  document.getElementById('fb-'+idx).classList.toggle('on',!!G.bases[idx]);
+  const labels=['1塁','2塁','3塁'];
+  const bt=[];if(G.bases[0])bt.push('1塁');if(G.bases[1])bt.push('2塁');if(G.bases[2])bt.push('3塁');
+  // 塁表示を即更新
+  const bf=document.getElementById('g-bases');
+  bf.innerHTML=`<div class="bsq${G.bases[1]?' on':''}" style="left:28px;top:2px"></div><div class="bsq${G.bases[0]?' on':''}" style="left:48px;top:22px"></div><div class="bsq${G.bases[2]?' on':''}" style="left:8px;top:22px"></div><div class="bsq" style="left:28px;top:42px;border-color:#555;background:#777"></div>`;
+  document.getElementById('g-btxt').textContent=bt.length?bt.join('・'):'走者なし';
+  log(`⚙ ランナー修正：${bt.length?bt.join('・'):'なし'}`,'fix');
+}
+
+// ====== CPU SUPPORT ======
+function cpuPickDefSupport(){
+  G.cDefSup=[];
+  const pit=G.cPitcher;
+  let cands=G.cHand.filter(c=>c.type==='T'&&(c.tacticRole==='support_def'||c.tacticRole==='shoubusha'));
+  if(!cands.length)cands=G.cHand.filter(c=>c.type==='P');
+  if(!cands.length)cands=G.cHand.filter(c=>c.type==='T');
+  const max=pit.dp<6?2:Math.random()<0.5?2:1;
+  const pick=cands.slice(0,Math.max(1,Math.min(max,cands.length)));
+  pick.forEach(c=>{G.cHand.splice(G.cHand.indexOf(c),1);G.cDefSup.push({...c,_hidden:true});G.cDisc.push(c)});
+  if(!G.cDefSup.length){cpuDraw();if(G.cHand.length){const c=G.cHand.shift();G.cDefSup.push({...c,_hidden:true});G.cDisc.push(c)}}
+}
+function cpuPickAtkSupport(sw){
+  G.cAtkSup=[];
+  let cands=G.cHand.filter(c=>c.type==='T'&&(c.tacticRole==='support_atk'||c.tacticRole==='shoubusha')&&(c.supType===sw||c.supType==='両方'));
+  if(!cands.length)cands=G.cHand.filter(c=>c.type==='P');
+  if(!cands.length)cands=G.cHand.filter(c=>c.type==='T');
+  const max=Math.random()<0.5?2:1;
+  const pick=cands.slice(0,Math.max(1,Math.min(max,cands.length)));
+  pick.forEach(c=>{G.cHand.splice(G.cHand.indexOf(c),1);G.cAtkSup.push(c);G.cDisc.push(c)});
+  if(!G.cAtkSup.length){cpuDraw();if(G.cHand.length){const c=G.cHand.shift();G.cAtkSup.push(c);G.cDisc.push(c)}}
+}
+function calcCpuDefDP(sw){
+  let dp=G.cPitcher.dp;let hs=false;
+  G.cDefSup.forEach(c=>{if(c.tacticRole==='shoubusha'){hs=true;return}if(c.tacticRole==='support_def'&&(c.supType===sw||c.supType==='両方'))dp+=c.supVal;else if(c.type==='P'&&(c.supType===sw||c.supType==='両方'))dp+=c.supVal});
+  return{dp,hs};
+}
+function calcCpuAtkAP(bat,sw){
+  let ap=bat.ap;let hs=false;
+  G.cAtkSup.forEach(c=>{if(c.tacticRole==='shoubusha'){hs=true;return}if(c.tacticRole==='support_atk'&&(c.supType===sw||c.supType==='両方'))ap+=c.supVal;else if(c.type==='P'&&(c.supType===sw||c.supType==='両方'))ap+=c.supVal});
+  return{ap,hs};
+}
+function calcDiceBonus(card,sw){if(!card||!card.diceBonus)return 0;if(sw==='強振'&&card.diceBonus.swing)return card.diceBonus.swing;if(sw==='ミート'&&card.diceBonus.meet)return card.diceBonus.meet;return 0}
+
+// ====== RENDER ======
+function renderScoreboard(id){
+  const el=document.getElementById(id);if(!el)return;
+  const pa=G.playerAtksTop;
+  let h='<tr><th>チーム</th>';for(let i=1;i<=3;i++)h+=`<th>${i}回</th>`;h+='<th>計</th></tr>';
+  const mkRow=(who,lbl)=>{let row=`<tr><td class="team-cell">${lbl}</td>`;for(let i=1;i<=3;i++){const sc=G.scoreByInning[who][i];const cur=i===G.inning;row+=`<td class="${cur?'cur-inn':''}">${sc!==undefined?sc:'-'}</td>`}row+=`<td class="total">${G.scores[who]}</td></tr>`;return row};
+  const top=pa?mkRow('p','あなた'):mkRow('c',G.cpuD?.shortName||'CPU');
+  const bot=pa?mkRow('c',G.cpuD?.shortName||'CPU'):mkRow('p','あなた');
+  el.innerHTML=`<thead><tr>${h}</tr></thead><tbody>${top}${bot}</tbody>`;
+}
+
+function render(){
+  const pa=isPA();
+  document.getElementById('g-sp').textContent=G.scores.p;
+  document.getElementById('g-sc').textContent=G.scores.c;
+  document.getElementById('g-inn').textContent=G.inning+'回'+(G.tb==='top'?'表':'裏');
+  const phNm={standby:'スタンバイ',main_atk:'メイン（攻撃）',swing_atk:'打撃宣言済',main_def:'プレイ（守備）',cpu_atk:'CPU攻撃中',result:'結果確認'};
+  document.getElementById('g-ph').textContent=phNm[G.phase]||G.phase;
+  const dots=document.getElementById('g-dots');dots.innerHTML='';
+  for(let i=1;i<=3;i++){const d=document.createElement('div');d.className='id'+(i<G.inning?' done':i===G.inning?' cur':'');dots.appendChild(d)}
+  renderScoreboard('sb-table');
+  if(pa){
+    document.getElementById('p-zone-lbl').textContent='あなたの打者（攻撃中）';
+    document.getElementById('c-zone-lbl').textContent='CPU 投手（守備中）';
+    renderMyCard('p-main','atk');renderCpuCard('c-main',G.cPitcher,'def');
+  } else {
+    document.getElementById('p-zone-lbl').textContent='あなたの投手（守備中）';
+    document.getElementById('c-zone-lbl').textContent='CPU 打者（攻撃中）';
+    renderMyCard('p-main','def');renderCpuCard('c-main',G.cpuD.order[G.cBatIdx%G.cpuD.order.length],'atk');
+  }
+  renderSupArea('c-sup',pa?G.cDefSup:G.cAtkSup);
+  renderTP('p-tp',G.pTp);renderTP('c-tp',G.cTp);
+  const bf=document.getElementById('g-bases');
+  bf.innerHTML=`<div class="bsq${G.bases[1]?' on':''}" style="left:28px;top:2px"></div><div class="bsq${G.bases[0]?' on':''}" style="left:48px;top:22px"></div><div class="bsq${G.bases[2]?' on':''}" style="left:8px;top:22px"></div><div class="bsq" style="left:28px;top:42px;border-color:#555;background:#777"></div>`;
+  const bt=[];if(G.bases[0])bt.push('1塁');if(G.bases[1])bt.push('2塁');if(G.bases[2])bt.push('3塁');
+  document.getElementById('g-btxt').textContent=bt.length?bt.join('・'):'走者なし';
+  const od=document.getElementById('g-outs');od.innerHTML='';
+  for(let i=0;i<3;i++){const d=document.createElement('div');d.className='oc'+(i<G.outs?' on':'');od.appendChild(d)}
+  const bench=document.getElementById('g-bench');bench.innerHTML='';
+  document.getElementById('bench-lbl').textContent=pa?'あなたの打順':'CPU打順';
+  if(pa){for(let i=0;i<9;i++){const cur=i===G.pBatIdx%9;const d=document.createElement('div');d.className='bplayer'+(cur?' cur':'');d.textContent=(i+1)+'番';bench.appendChild(d)}}
+  else{G.cpuD.order.forEach((p,i)=>{const cur=i===G.cBatIdx%G.cpuD.order.length;const d=document.createElement('div');d.className='bplayer'+(cur?' cur':'');d.textContent=(i+1)+'.'+p.nm.replace(/ /g,'');bench.appendChild(d)})}
+  // 修正パネルが開いていたら同期
+  if(document.getElementById('fix-panel').style.display!=='none') syncFixPanel();
+  renderActions();
+}
+
+function renderMyCard(elId,role){
+  const el=document.getElementById(elId);
+  if(role==='atk'){const n=G.pBatIdx%9+1;const ord=['1番','2番','3番','4番','5番','6番','7番','8番','9番'];el.innerHTML=`<div class="mycard"><div class="abs-title">${ord[n-1]}打者</div><div class="abs-sub">手元のカードを確認してください</div></div>`}
+  else{el.innerHTML=`<div class="mycard"><div class="abs-title">投手</div><div class="abs-sub">手元の投手カードを確認してください</div></div>`}
+}
+function renderCpuCard(elId,p,role){
+  const el=document.getElementById(elId);if(!p){el.innerHTML='<div class="empty-card">—</div>';return}
+  const isA=role==='atk';const val=isA?p.ap:p.dp;const col=p.supType==='ミート'?'#1a6a8a':'#8a2020';
+  let dbHtml='';if(p.diceBonus){if(p.diceBonus.swing)dbHtml+=`<span class="dbonus db-swing">強振ダイス+${p.diceBonus.swing}</span> `;if(p.diceBonus.meet)dbHtml+=`<span class="dbonus db-meet">ミートダイス+${p.diceBonus.meet}</span>`}
+  el.innerHTML=`<div class="pos">${p.pos||'戦術'}</div><div class="nm">${p.nm}</div><div class="pstats"><div class="stat"><div class="l">${isA?'AP':'DP'}（左下）</div><div class="v">${val}</div></div><div class="stat"><div class="l">サポート（右下）</div><div class="v" style="font-size:13px;color:${col}">${p.supType}+${p.supVal}</div></div></div>${dbHtml?`<div style="margin-bottom:3px">${dbHtml}</div>`:''}${p.abil?`<div class="abil">★ ${p.abil}</div>`:''}`;
+}
+function renderSupArea(elId,cards){
+  const el=document.getElementById(elId);el.innerHTML='';
+  if(!cards||!cards.length){el.innerHTML='<span style="font-size:11px;color:var(--ts)">なし</span>';return}
+  cards.forEach(c=>{const d=document.createElement('div');if(c._hidden){d.className='scard hidden';d.textContent='？ 伏せ中'}else if(c.tacticRole==='shoubusha'){d.className='scard shoubusha';d.textContent='⚔ 勝負師（覚醒無効）'}else{d.className='scard'+(c.type==='T'?' tac':'');const lbl=c.tacticRole==='support_def'?'【守備】':c.tacticRole==='support_atk'?'【攻撃】':'';d.textContent=c.nm+(c.supVal?` ${lbl}${c.supType}+${c.supVal}`:'')}el.appendChild(d)});
+}
+function renderTP(elId,n){const el=document.getElementById(elId);el.innerHTML='';for(let i=0;i<3;i++){const d=document.createElement('div');d.className='tp'+(i>=n?' used':'');d.textContent='TP';el.appendChild(d)}}
+function usePTP(){if(G.pTp>0){G.pTp--;log('タイムポイントを1つ使用');render()}}
+
+// ====== ACTIONS ======
+function renderActions(){
+  const el=document.getElementById('g-act');if(!G.phase||G.gameOver){el.innerHTML='';return}
+  const pa=isPA();
+  if(G.phase==='standby'){
+    if(pa)el.innerHTML=`<h4>📋 スタンバイフェイズ — あなたの攻撃</h4><p style="font-size:12px;color:var(--ts);margin-bottom:8px">手元で${G.pBatIdx%9+1}番打者をメインエリアへ移動し、カードを1枚引いてください。</p><div class="arow"><button class="ab pri" onclick="doStandbyPA()">準備完了 → メインへ</button></div>`;
+    else el.innerHTML=`<h4>📋 スタンバイフェイズ — CPU攻撃</h4><p style="font-size:12px;color:var(--ts);margin-bottom:8px">あなたは投手をメインエリアへ移動し、カードを1枚引いてください。</p><div class="arow"><button class="ab pri" onclick="doStandbyCA()">準備完了 → CPU攻撃開始</button></div>`;
+  }
+  else if(G.phase==='main_atk'){
+    const cp=G.cPitcher;
+    el.innerHTML=`<h4>⚔ メインフェイズ — あなたの攻撃</h4><div class="info-box">CPU投手：<strong>${cp.nm}</strong>　基礎DP：<strong>${cp.dp}</strong>　CPU伏せ：<strong>${G.cDefSup.length}枚</strong></div><p style="font-size:12px;color:var(--ts);margin-bottom:8px">手元でサポートカードをセット（1〜2枚）後、APを確認してミート/強振を宣言してください。</p><div class="arow"><span class="ni-label">${G.pBatIdx%9+1}番打者の基礎AP（左下）:</span><button class="ni-btn" onclick="adjAP(-1)">－</button><span class="ni-val" id="user-ap">${G.userAP}</span><button class="ni-btn" onclick="adjAP(1)">＋</button></div><div class="arow" style="margin-top:6px"><button class="ab meet" onclick="declareSwingAtk('ミート')">ミート宣言</button><button class="ab pow" onclick="declareSwingAtk('強振')">強振宣言</button></div>`;
+  }
+  else if(G.phase==='swing_atk'){
+    const sw=G.swingType;const{dp:fDP,hs}=calcCpuDefDP(sw);
+    el.innerHTML=`<h4>🎯 プレイフェイズ — ${sw}で勝負</h4><div class="info-box"><div>CPUサポート公開：${G.cDefSup.map(c=>c.tacticRole==='shoubusha'?'⚔勝負師（覚醒無効）':`${c.nm}（${c.supType}+${c.supVal||0}）`).join('、')||'なし'}</div>${hs?'<div style="color:#a01010">⚔ 勝負師：あなたの覚醒が無効化</div>':''}<div>CPU最終DP = ${G.cPitcher.dp} + ${fDP-G.cPitcher.dp} = <strong style="font-size:15px">${fDP}</strong></div></div><p style="font-size:12px;color:var(--ts);margin-bottom:6px">あなたの最終AP（基礎＋サポート合計）を入力してください</p><div class="arow"><span class="ni-label">最終AP:</span><button class="ni-btn" onclick="adjAP(-1)">－</button><span class="ni-val" id="user-ap">${G.userAP}</span><button class="ni-btn" onclick="adjAP(1)">＋</button></div><div class="info-box" style="margin-top:8px">AP <strong>${G.userAP}</strong> vs DP <strong>${fDP}</strong> — ${G.userAP>=fDP?'<span style="color:#0a6010;font-weight:500">✅ 打撃判定へ</span>':'<span style="color:#a01010;font-weight:500">❌ アウト</span>'}</div><div class="arow" style="margin-top:8px"><button class="ab grn" onclick="goBattingAtk(${fDP})">打撃判定へ（AP≥DP）</button><button class="ab danger" onclick="confirmOutAtk()">アウト（AP＜DP）</button></div>`;
+  }
+  else if(G.phase==='main_def'){
+    const bat=G.cpuD.order[G.cBatIdx%G.cpuD.order.length];const sw=G.swingType;
+    const{ap:cAP,hs}=calcCpuAtkAP(bat,sw);const db=calcDiceBonus(bat,sw);
+    el.innerHTML=`<h4>🛡 プレイフェイズ — CPU攻撃（あなたは守備）</h4><div class="info-box"><div>CPU打者：<strong>${bat.nm}</strong>　基礎AP：<strong>${bat.ap}</strong>　宣言：<strong>${sw}</strong></div><div>CPUサポート：${G.cAtkSup.length?G.cAtkSup.map(c=>c.tacticRole==='shoubusha'?'⚔勝負師':`${c.nm}(+${c.supVal||0})`).join('、'):'なし'}</div>${hs?'<div style="color:#a01010">⚔ 勝負師：あなたの覚醒が無効化</div>':''}<div>CPU最終AP = <strong style="font-size:15px">${cAP}</strong>${db>0?` （打撃判定時にダイス+${db}）`:''}</div></div><p style="font-size:12px;color:var(--ts);margin-bottom:6px">あなたの最終DP（基礎＋サポート合計）を入力してください</p><div class="arow"><span class="ni-label">最終DP:</span><button class="ni-btn" onclick="adjDP(-1)">－</button><span class="ni-val" id="user-dp">${G.userDP}</span><button class="ni-btn" onclick="adjDP(1)">＋</button></div><div class="info-box" style="margin-top:8px">CPU AP <strong>${cAP}</strong> vs DP <strong>${G.userDP}</strong> — ${cAP>=G.userDP?'<span style="color:#a01010;font-weight:500">⚠️ CPUが打撃判定へ</span>':'<span style="color:#0a6010;font-weight:500">✅ CPUアウト</span>'}</div><div class="arow" style="margin-top:8px"><button class="ab danger" onclick="goBattingDef(${cAP},${db})">CPUが打撃判定へ（AP≥DP）</button><button class="ab grn" onclick="confirmOutDef()">CPUアウト（AP＜DP）</button></div>`;
+  }
+  else if(G.phase==='result'){
+    const b=G.resultBanner;if(!b){el.innerHTML='';return}
+    const cls='result-banner '+(b.type==='out'?'out':b.type==='hr'?'hr':'hit');
+    const btn=b.type==='out'?`<button class="ab pri" onclick="nextBatterOut()">確認→次へ</button>`:`<button class="ab pri" onclick="nextBatterHit()">進塁確認→次へ</button>`;
+    el.innerHTML=`<h4>📊 結果</h4><div class="${cls}">${b.msg}</div><div class="arow">${btn}</div>`;
+  }
+}
+
+function adjAP(d){G.userAP=Math.max(1,Math.min(25,(G.userAP||5)+d));render()}
+function adjDP(d){G.userDP=Math.max(1,Math.min(25,(G.userDP||7)+d));render()}
+function doStandbyPA(){cpuDraw();G.cDefSup=[];cpuPickDefSupport();G.phase='main_atk';log(`CPU守備サポート${G.cDefSup.length}枚セット（伏せ）`,'cpu');render()}
+function doStandbyCA(){cpuDraw();G.phase='cpu_atk';render();setTimeout(()=>runCpuAtkSetup(),600)}
+function runCpuAtkSetup(){
+  if(G.gameOver)return;
+  const bat=G.cpuD.order[G.cBatIdx%G.cpuD.order.length];
+  const sw=bat.supType==='両方'?'強振':bat.supType;
+  G.swingType=sw;G.cAtkSup=[];cpuPickAtkSupport(sw);
+  const{ap:cAP,hs}=calcCpuAtkAP(bat,sw);const db=calcDiceBonus(bat,sw);
+  log(`CPU ${G.cBatIdx%G.cpuD.order.length+1}番：${bat.nm}（AP:${bat.ap}）${sw}宣言`,'cpu');
+  const st=G.cAtkSup.map(c=>c.tacticRole==='shoubusha'?'勝負師':c.nm+(c.supVal?`[+${c.supVal}]`:'')).join('、');
+  if(st)log(`CPUサポート（${G.cAtkSup.length}枚）：${st}`,'cpu');
+  G.phase='main_def';render();
+}
+function declareSwingAtk(type){G.swingType=type;G.cDefSup.forEach(c=>c._hidden=false);G.phase='swing_atk';log(`あなた: ${type}宣言`);render()}
+function goBattingAtk(fDP){
+  log(`AP:${G.userAP} ≥ DP:${fDP} → 打撃判定`);G.cDefSup=[];
+  const d1=~~(Math.random()*6)+1,d2=~~(Math.random()*6)+1,tot=d1+d2;
+  log(`🎲 ダイス: ${d1}＋${d2}＝${tot} → ${HIT[tot]}`,'hi');
+  processBatting(HIT[tot],tot,'p',0);
+}
+function confirmOutAtk(){G.cDefSup=[];log('▶ アウト（AP＜DP）');G.resultBanner={type:'out',msg:`❌ アウト　打者をベンチに戻してください`};G.phase='result';render()}
+function goBattingDef(cAP,db){
+  log(`CPU AP:${cAP} ≥ DP:${G.userDP} → CPU打撃判定`,'cpu');G.cAtkSup=[];
+  const d1=~~(Math.random()*6)+1,d2=~~(Math.random()*6)+1;let tot=Math.min(d1+d2+db,12);
+  log(`🎲 CPUダイス: ${d1}＋${d2}${db?'＋'+db+'(能力)':''}＝${tot} → ${HIT[tot]}`,'cpu');
+  processBatting(HIT[tot],tot,'c',db);
+}
+function confirmOutDef(){G.cAtkSup=[];log('▶ CPUアウト（AP＜DP）','cpu');G.outs++;G.cBatIdx++;if(G.outs>=3)doChange();else{G.phase='standby';render()}}
+function processBatting(res,tot,who,db){
+  if(res==='アウト'){
+    if(who==='p'){G.resultBanner={type:'out',msg:`❌ アウト（ダイス:${tot}）　打者をベンチに戻してください`};G.phase='result';render()}
+    else{G.outs++;G.cBatIdx++;if(G.outs>=3)doChange();else{G.phase='standby';render()}}
+  } else if(res==='単打'){
+    if(who==='p'){advBases(1);G.resultBanner={type:'hit',msg:`✅ 単打！（ダイス:${tot}）　打者を1塁へ。走者は1つ進塁。`};G.phase='result';render()}
+    else{cpuAdvBases(1);G.cBatIdx++;G.phase='standby';render()}
+  } else if(res==='二塁打'){
+    if(who==='p'){advBases(2);G.resultBanner={type:'hit',msg:`✅ 二塁打！（ダイス:${tot}）　打者を2塁へ。走者は2つ進塁。`};G.phase='result';render()}
+    else{cpuAdvBases(2);G.cBatIdx++;G.phase='standby';render()}
+  } else if(res==='本塁打'){
+    const runs=1+G.bases.filter(Boolean).length;G.bases=[null,null,null];
+    if(who==='p'){log(`⚡ 本塁打！${runs}点！`,'sc');scoreRuns('p',runs);G.resultBanner={type:'hr',msg:`💥 本塁打！${runs}点！（ダイス:${tot}）`};G.phase='result';render()}
+    else{log(`⚡ CPU本塁打！${runs}点！`,'sc');scoreRuns('c',runs);G.cBatIdx++;if(!G.gameOver){G.phase='standby';render()}}
+  }
+}
+function advBases(h){const bat={label:`${G.pBatIdx%9+1}番`};let sc=0;if(h===1){if(G.bases[2])sc++;G.bases[2]=G.bases[1];G.bases[1]=G.bases[0];G.bases[0]=bat}else{if(G.bases[2])sc++;if(G.bases[1])sc++;G.bases[2]=null;G.bases[1]=bat;G.bases[0]=null}if(sc){log(`${sc}点！`,'sc');scoreRuns('p',sc)}}
+function cpuAdvBases(h){const bat=G.cpuD.order[G.cBatIdx%G.cpuD.order.length];let sc=0;if(h===1){if(G.bases[2])sc++;G.bases[2]=G.bases[1];G.bases[1]=G.bases[0];G.bases[0]=bat}else{if(G.bases[2])sc++;if(G.bases[1])sc++;G.bases[2]=null;G.bases[1]=bat;G.bases[0]=null}log(`CPU ${bat.nm} → ${h===1?'単打':'二塁打'}`,'cpu');if(sc){log(`CPU ${sc}点！`,'sc');scoreRuns('c',sc)}}
+function nextBatterOut(){G.outs++;G.pBatIdx++;G.resultBanner=null;G.swingType=null;if(G.outs>=3)doChange();else{G.phase='standby';render()}}
+function nextBatterHit(){G.pBatIdx++;G.resultBanner=null;G.swingType=null;G.phase='standby';render()}
+function scoreRuns(who,n){
+  if(who==='p'){G.scores.p+=n;G.curInnScore.p=(G.curInnScore.p||0)+n;for(let i=0;i<n;i++)cpuDraw()}
+  else{G.scores.c+=n;G.curInnScore.c=(G.curInnScore.c||0)+n}
+  log(`${who==='p'?'あなた':'CPU'}が${n}点！`,who==='p'?'sc':'sc');checkEnd();
+}
+function doChange(){
+  G.bases=[null,null,null];G.outs=0;G.cDefSup=[];G.cAtkSup=[];G.resultBanner=null;G.swingType=null;
+  document.getElementById('fix-panel').style.display='none';
+  log('─── チェンジ ───','hi');
+  if(G.tb==='top'){
+    if(G.playerAtksTop)G.scoreByInning.p[G.inning]=G.curInnScore.p||0;
+    else G.scoreByInning.c[G.inning]=G.curInnScore.c||0;
+    G.curInnScore={p:0,c:0};G.tb='bottom';
+  } else {
+    if(!G.playerAtksTop)G.scoreByInning.p[G.inning]=G.curInnScore.p||0;
+    else G.scoreByInning.c[G.inning]=G.curInnScore.c||0;
+    G.curInnScore={p:0,c:0};G.inning++;G.tb='top';if(G.inning>3){endGame();return}
+  }
+  G.phase='standby';log(G.inning+'回'+(G.tb==='top'?'表':'裏')+'開始','hi');checkEnd();if(!G.gameOver)render();
+}
+function checkEnd(){if(G.inning>3)endGame()}
+function endGame(){
+  if(G.gameOver)return;G.gameOver=true;
+  if(G.scoreByInning.p[3]===undefined)G.scoreByInning.p[3]=G.curInnScore.p||0;
+  if(G.scoreByInning.c[3]===undefined)G.scoreByInning.c[3]=G.curInnScore.c||0;
+  show('s-end');renderScoreboard('end-sb-table');
+  const w=G.scores.p>G.scores.c?'🎉 あなたの勝利！':G.scores.p<G.scores.c?`${G.cpuD.name}（CPU）の勝利`:'引き分け';
+  document.getElementById('e-win').textContent=w;
+}
+</script></body></html>
